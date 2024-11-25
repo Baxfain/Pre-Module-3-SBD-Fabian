@@ -1,0 +1,62 @@
+-1-
+select * from membership
+where mbr_points > 100 and mbr_points < 115;
+
+-2-
+select * from transaction
+where transaction.tr_paymentMethod = "Cash";
+
+-3-
+select customer.cst_id, AVG(transaction.tr_totalBill) as Average
+from customer join transaction on (customer.cst_id = transaction.customer_cst_id)
+group by transaction.customer_cst_id
+having Average > 5000000;
+
+-4-
+select sum(transaction.tr_totalBill) as Total_Transaction
+from transaction
+where transaction.tr_paymentMethod = "Cash";
+
+-5-
+select customer.cst_name, customer.cst_phoneNumber, membership.mbr_email, sum(transaction.tr_totalBill) as Total_Transaction
+from customer join transaction on (customer.cst_id = transaction.customer_cst_id)
+				join membership on (customer.cst_id = membership.customer_cst_id)
+group by membership.mbr_id 
+ORDER BY `Total_Transaction` DESC limit 3
+
+-6-
+select customer.cst_id, avg(transaction.tr_totalBill) as Cst_Average, (select avg(transaction.tr_totalBill) from transaction) as General_Average
+from customer join transaction on (customer.cst_id = transaction.customer_cst_id)
+group by customer.cst_id
+having Cst_average > General_Average
+order by Cst_Average DESC;
+
+-7-
+SELECT emp_id, emp_name, Most_Transaction
+FROM (
+    SELECT employee.emp_id, employee.emp_name, COUNT(*) AS Most_Transaction
+    FROM employee JOIN transaction ON (employee.emp_id = transaction.employee_emp_id)
+    GROUP BY employee.emp_id
+    ORDER BY Most_Transaction DESC
+    LIMIT 1
+)as Best_Employee;
+
+-8-
+select customer.cst_id, customer.cst_name, sum(transaction.tr_totalBill) as cst_total, (select avg(transaction.tr_totalBill) from transaction) as average
+from customer join transaction on (transaction.customer_cst_id = customer.cst_id)
+group by customer.cst_id
+having cst_total > average;
+
+-9-
+select cst_id, cst_name, total
+from (select customer.cst_id, customer.cst_name, count(*) as total
+    from customer join transaction on (customer.cst_id = transaction.customer_cst_id)
+    group by customer.cst_id
+    having total > 1
+)as result;
+
+-10-
+select item_id, item_name
+from item 
+where item.item_id not in (select DISTINCT item_id 
+                           from item join transaction_item on (item.item_id = transaction_item.item_item_id));
